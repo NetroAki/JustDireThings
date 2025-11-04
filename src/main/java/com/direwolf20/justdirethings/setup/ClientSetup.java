@@ -24,7 +24,8 @@ import com.direwolf20.justdirethings.common.items.FluidCanister;
 import com.direwolf20.justdirethings.common.items.PocketGenerator;
 import com.direwolf20.justdirethings.common.items.PortalGunV2;
 import com.direwolf20.justdirethings.common.items.PotionCanister;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import com.direwolf20.justdirethings.common.items.interfaces.ToggleableItem;
 import com.direwolf20.justdirethings.common.items.tools.basetools.BaseBow;
 import net.minecraft.client.Minecraft;
@@ -131,7 +132,7 @@ public class ClientSetup {
                             IEnergyStorage energyStorage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
                             if (energyStorage == null) return 0.0f;
                             if (energyStorage.getEnergyStored() > 0) return 1.0f;
-                            if (!(stack.getOrDefault(JustDireDataComponents.POCKETGEN_COUNTER, 0) > 0)) return 0.0f;
+                            if (!(ItemDataHelper.getInt(stack, ItemDataKeys.POCKETGEN_COUNTER, 0) > 0)) return 0.0f;
                             return 1.0f;
                         } else
                             return toggleableItem.getEnabled(stack) ? 1.0f : 0.0f;

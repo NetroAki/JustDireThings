@@ -74,9 +74,8 @@ public class JustDireThings {
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
         //Items
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1),
-                Registration.Pocket_Generator.get()
-        );
+        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> itemStack.getData(Registration.HANDLER.get()),
+                Registration.Pocket_Generator.get());
         event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 1),
                 Registration.FerricoreBow.get()
         );

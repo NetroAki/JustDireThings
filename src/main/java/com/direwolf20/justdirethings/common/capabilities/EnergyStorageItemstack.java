@@ -1,6 +1,7 @@
 package com.direwolf20.justdirethings.common.capabilities;
 
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.Tag;
@@ -13,12 +14,12 @@ public class EnergyStorageItemstack extends EnergyStorage {
     public EnergyStorageItemstack(int capacity, ItemStack itemStack) {
         super(capacity, capacity, capacity, 0);
         this.itemStack = itemStack;
-        this.energy = itemStack.getOrDefault(JustDireDataComponents.FORGE_ENERGY, 0);
+        this.energy = ItemDataHelper.getInt(itemStack, ItemDataKeys.FORGE_ENERGY, 0);
     }
 
     public void setEnergy(int energy) {
         this.energy = energy;
-        itemStack.set(JustDireDataComponents.FORGE_ENERGY, energy);
+        ItemDataHelper.setInt(itemStack, ItemDataKeys.FORGE_ENERGY, energy);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class EnergyStorageItemstack extends EnergyStorage {
         int energyReceived = Math.min(capacity - energy, Math.min(this.maxReceive, maxReceive));
         if (!simulate) {
             energy += energyReceived;
-            itemStack.set(JustDireDataComponents.FORGE_ENERGY, energy);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.FORGE_ENERGY, energy);
         }
         return energyReceived;
     }
@@ -42,14 +43,14 @@ public class EnergyStorageItemstack extends EnergyStorage {
         int energyExtracted = Math.min(energy, Math.min(this.maxExtract, maxExtract));
         if (!simulate) {
             energy -= energyExtracted;
-            itemStack.set(JustDireDataComponents.FORGE_ENERGY, energy);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.FORGE_ENERGY, energy);
         }
         return energyExtracted;
     }
 
     @Override
     public int getEnergyStored() {
-        return itemStack.getOrDefault(JustDireDataComponents.FORGE_ENERGY, 0);
+        return ItemDataHelper.getInt(itemStack, ItemDataKeys.FORGE_ENERGY, 0);
     }
 
     @Override

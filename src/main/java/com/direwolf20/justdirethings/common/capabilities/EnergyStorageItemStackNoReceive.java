@@ -1,6 +1,7 @@
 package com.direwolf20.justdirethings.common.capabilities;
 
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import net.minecraft.world.item.ItemStack;
 
 public class EnergyStorageItemStackNoReceive extends EnergyStorageItemstack {
@@ -21,7 +22,7 @@ public class EnergyStorageItemStackNoReceive extends EnergyStorageItemstack {
         int energyReceived = Math.min(capacity - energy, Math.min(this.maxReceive, maxReceive));
         if (!simulate) {
             energy += energyReceived;
-            itemStack.set(JustDireDataComponents.FORGE_ENERGY, energy);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.FORGE_ENERGY, energy);
         }
         return energyReceived;
     }

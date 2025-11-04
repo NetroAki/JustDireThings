@@ -3,11 +3,13 @@ package com.direwolf20.justdirethings.common.items;
 import com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemStackNoReceive;
 import com.direwolf20.justdirethings.common.containers.PocketGeneratorContainer;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import com.direwolf20.justdirethings.common.items.interfaces.PoweredItem;
 import com.direwolf20.justdirethings.common.items.interfaces.ToggleableItem;
 import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
 import com.direwolf20.justdirethings.setup.Config;
+import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -20,7 +22,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.ComponentItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -78,7 +80,7 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
 
     public void tryBurn(EnergyStorageItemStackNoReceive energyStorage, ItemStack itemStack) {
         boolean canInsertEnergy = energyStorage.forceReceiveEnergy(fePerTick(itemStack), true) > 0;
-        if (itemStack.getOrDefault(JustDireDataComponents.POCKETGEN_COUNTER, 0) > 0 && canInsertEnergy) {
+        if (ItemDataHelper.getInt(itemStack, ItemDataKeys.POCKETGEN_COUNTER, 0) > 0 && canInsertEnergy) {
             burn(energyStorage, itemStack);
         } else if (canInsertEnergy) {
             if (initBurn(itemStack))
@@ -89,17 +91,17 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
 
     private void burn(EnergyStorageItemStackNoReceive energyStorage, ItemStack itemStack) {
         energyStorage.forceReceiveEnergy(fePerTick(itemStack), false);
-        int counter = itemStack.getOrDefault(JustDireDataComponents.POCKETGEN_COUNTER, 0);
+        int counter = ItemDataHelper.getInt(itemStack, ItemDataKeys.POCKETGEN_COUNTER, 0);
         counter--;
-        itemStack.set(JustDireDataComponents.POCKETGEN_COUNTER, counter);
+        ItemDataHelper.setInt(itemStack, ItemDataKeys.POCKETGEN_COUNTER, counter);
         if (counter == 0) {
-            itemStack.set(JustDireDataComponents.POCKETGEN_MAXBURN, 0);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.POCKETGEN_MAXBURN, 0);
             initBurn(itemStack);
         }
     }
 
     private boolean initBurn(ItemStack itemStack) {
-        ComponentItemHandler handler = new ComponentItemHandler(itemStack, JustDireDataComponents.ITEMSTACK_HANDLER.get(), 1);
+        ItemStackHandler handler = itemStack.getData(Registration.HANDLER.get());
         ItemStack fuelStack = handler.getStackInSlot(0);
 
         int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
@@ -123,8 +125,8 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
 
             int counter = (int) (Math.floor(burnTime) / getBurnSpeedMultiplier(itemStack));
             int maxBurn = counter;
-            itemStack.set(JustDireDataComponents.POCKETGEN_COUNTER, counter);
-            itemStack.set(JustDireDataComponents.POCKETGEN_MAXBURN, maxBurn);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.POCKETGEN_COUNTER, counter);
+            ItemDataHelper.setInt(itemStack, ItemDataKeys.POCKETGEN_MAXBURN, maxBurn);
             return true;
         }
         return false;
@@ -172,11 +174,11 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
     }
 
     public void setFuelMultiplier(ItemStack itemStack, int amount) {
-        itemStack.set(JustDireDataComponents.POCKETGEN_FUELMULT, amount);
+        ItemDataHelper.setInt(itemStack, ItemDataKeys.POCKETGEN_FUELMULT, amount);
     }
 
     public int getFuelMultiplier(ItemStack itemStack) {
-        return itemStack.getOrDefault(JustDireDataComponents.POCKETGEN_FUELMULT, 1);
+        return ItemDataHelper.getInt(itemStack, ItemDataKeys.POCKETGEN_FUELMULT, 1);
     }
 
     @Override

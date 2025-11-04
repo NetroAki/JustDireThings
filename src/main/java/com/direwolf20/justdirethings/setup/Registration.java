@@ -743,6 +743,8 @@ public class Registration {
             () -> IMenuTypeExtension.create(ExperienceHolderContainer::new));
 
     //Data Attachments
+    public static final Supplier<AttachmentType<CompoundTag>> ITEM_DATA = ATTACHMENT_TYPES.register(
+            "item_data", () -> AttachmentType.builder(CompoundTag::new).serialize(CompoundTag.CODEC).build());
     public static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
             "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build());
     public static final Supplier<AttachmentType<ItemStackHandler>> MACHINE_HANDLER = ATTACHMENT_TYPES.register(

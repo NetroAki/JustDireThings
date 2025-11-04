@@ -2,7 +2,8 @@ package com.direwolf20.justdirethings.common.items;
 
 import com.direwolf20.justdirethings.common.blocks.resources.CoalBlock_T1;
 import com.direwolf20.justdirethings.common.containers.FuelCanisterContainer;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import com.direwolf20.justdirethings.common.items.resources.Coal_T1;
 import com.direwolf20.justdirethings.setup.Config;
 import com.direwolf20.justdirethings.util.MagicHelpers;
@@ -77,15 +78,15 @@ public class FuelCanister extends Item {
     }
 
     public static int getFuelLevel(ItemStack stack) {
-        return stack.getOrDefault(JustDireDataComponents.FUELCANISTER_FUELLEVEL, 0);
+        return ItemDataHelper.getInt(stack, ItemDataKeys.FUELCANISTER_FUELLEVEL, 0);
     }
 
     public static void setFuelLevel(ItemStack stack, int fuelLevel) {
-        stack.set(JustDireDataComponents.FUELCANISTER_FUELLEVEL, fuelLevel);
+        ItemDataHelper.setInt(stack, ItemDataKeys.FUELCANISTER_FUELLEVEL, fuelLevel);
     }
 
     public static double getBurnSpeed(ItemStack stack) {
-        return stack.getOrDefault(JustDireDataComponents.FUELCANISTER_BURNSPEED, 1.0);
+        return ItemDataHelper.getDouble(stack, ItemDataKeys.FUELCANISTER_BURNSPEED, 1.0);
     }
 
     public static int getBurnSpeedMultiplier(ItemStack stack) {
@@ -94,7 +95,7 @@ public class FuelCanister extends Item {
     }
 
     public static void setBurnSpeed(ItemStack stack, double burnSpeed) {
-        stack.set(JustDireDataComponents.FUELCANISTER_BURNSPEED, burnSpeed);
+        ItemDataHelper.setDouble(stack, ItemDataKeys.FUELCANISTER_BURNSPEED, burnSpeed);
     }
 
     public static void decrementFuel(ItemStack stack) {
