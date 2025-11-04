@@ -101,7 +101,10 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
     }
 
     private boolean initBurn(ItemStack itemStack) {
-        ItemStackHandler handler = itemStack.getData(Registration.HANDLER.get());
+        ItemStackHandler handler = itemStack.getData(Registration.HANDLER);
+        if (handler == null) {
+            return false;
+        }
         ItemStack fuelStack = handler.getStackInSlot(0);
 
         int burnTime = fuelStack.getBurnTime(RecipeType.SMELTING);
@@ -115,9 +118,9 @@ public class PocketGenerator extends Item implements PoweredItem, ToggleableItem
             } else {
                 setFuelMultiplier(itemStack, 1);
             }
-            if (fuelStack.hasCraftingRemainingItem())
+            if (fuelStack.hasCraftingRemainingItem()) {
                 handler.setStackInSlot(0, fuelStack.getCraftingRemainingItem());
-            else {
+            } else {
                 fuelStack.shrink(1);
                 handler.setStackInSlot(0, fuelStack);
             }

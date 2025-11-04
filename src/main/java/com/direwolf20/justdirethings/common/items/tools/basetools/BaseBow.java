@@ -30,8 +30,8 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.ComponentItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -114,7 +114,7 @@ public class BaseBow extends BowItem implements ToggleableTool, LeftClickableToo
                 return customArrow(justDireArrow, stack, itemStack);
 
             IItemHandler itemHandler = itemStack.getCapability(Capabilities.ItemHandler.ITEM);
-            if (itemHandler instanceof ComponentItemHandler componentItemHandler) {
+            if (itemHandler instanceof ItemStackHandler componentItemHandler) {
                 PotionContents potionContents = PotionContents.EMPTY;
                 for (int slot = 0; slot < componentItemHandler.getSlots(); slot++) {
                     ItemStack potionCanister = componentItemHandler.getStackInSlot(slot);

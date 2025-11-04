@@ -2,13 +2,13 @@ package com.direwolf20.justdirethings.common.containers;
 
 import com.direwolf20.justdirethings.common.containers.basecontainers.BaseContainer;
 import com.direwolf20.justdirethings.common.containers.handlers.PotionCanisterHandler;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
 import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.PotionItem;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
@@ -26,7 +26,7 @@ public class PotionCanisterContainer extends BaseContainer {
     public PotionCanisterContainer(int windowId, Inventory playerInventory, Player player, ItemStack potionCanister) {
         super(Registration.PotionCanister_Container.get(), windowId);
         playerEntity = player;
-        handler = new PotionCanisterHandler(potionCanister, JustDireDataComponents.TOOL_CONTENTS.get(), 1);
+        handler = potionCanister.getData(Registration.POTION_CANISTER_HANDLER.get());
         this.potionCanister = potionCanister;
         if (handler != null)
             addItemSlots(handler, 0, 80, 35, 1, 18);
@@ -44,7 +44,7 @@ public class PotionCanisterContainer extends BaseContainer {
             addSlot(new SlotItemHandler(handler, i, x, y) {
                 @Override
                 public boolean mayPlace(ItemStack stack) {
-                    return stack.getItem() instanceof PotionItem;
+                    return stack.getItem() instanceof PotionItem || stack.is(Items.GLASS_BOTTLE);
                 }
             });
             x += dx;

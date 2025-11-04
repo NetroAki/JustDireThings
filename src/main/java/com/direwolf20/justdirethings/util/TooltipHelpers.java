@@ -105,8 +105,8 @@ public class TooltipHelpers {
     }
 
     public static void appendGeneratorDetails(ItemStack stack, List<Component> tooltip) {
-        ItemStackHandler handler = stack.getData(Registration.HANDLER.get());
-        ItemStack fuelStack = handler.getStackInSlot(0);
+        ItemStackHandler handler = stack.getData(Registration.HANDLER);
+        ItemStack fuelStack = handler != null ? handler.getStackInSlot(0) : ItemStack.EMPTY;
         if (Screen.hasShiftDown()) {
             tooltip.add(Component.translatable("justdirethings.pocketgeneratorburntime",
                     ItemDataHelper.getInt(stack, ItemDataKeys.POCKETGEN_COUNTER, 0),

@@ -7,7 +7,6 @@ import com.direwolf20.justdirethings.common.blockentities.basebe.PoweredMachineB
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemStackNoReceive;
 import com.direwolf20.justdirethings.common.capabilities.EnergyStorageItemstack;
 import com.direwolf20.justdirethings.common.capabilities.ExperienceHolderFluidTank;
-import com.direwolf20.justdirethings.common.containers.handlers.PotionCanisterHandler;
 import com.direwolf20.justdirethings.common.entities.DecoyEntity;
 import com.direwolf20.justdirethings.common.items.*;
 import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
@@ -32,7 +31,6 @@ import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeModificationEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.templates.FluidHandlerItemStack;
-import net.neoforged.neoforge.items.ComponentItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.slf4j.Logger;
 
@@ -76,19 +74,13 @@ public class JustDireThings {
         //Items
         event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> itemStack.getData(Registration.HANDLER.get()),
                 Registration.Pocket_Generator.get());
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 1),
-                Registration.FerricoreBow.get()
-        );
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 2),
-                Registration.BlazegoldBow.get()
-        );
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 3),
-                Registration.CelestigemBow.get()
-        );
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new ComponentItemHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 4),
+        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> itemStack.getData(Registration.TOOL_HANDLER.get()),
+                Registration.FerricoreBow.get(),
+                Registration.BlazegoldBow.get(),
+                Registration.CelestigemBow.get(),
                 Registration.EclipseAlloyBow.get()
         );
-        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> new PotionCanisterHandler(itemStack, JustDireDataComponents.TOOL_CONTENTS.get(), 1),
+        event.registerItem(Capabilities.ItemHandler.ITEM, (itemStack, context) -> itemStack.getData(Registration.POTION_CANISTER_HANDLER.get()),
                 Registration.PotionCanister.get()
         );
         event.registerItem(Capabilities.EnergyStorage.ITEM, (itemStack, context) -> {

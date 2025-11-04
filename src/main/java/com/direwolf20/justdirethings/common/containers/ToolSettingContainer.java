@@ -15,9 +15,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ComponentItemHandler;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +34,7 @@ public class ToolSettingContainer extends BaseContainer {
     };
     private static final EquipmentSlot[] SLOT_IDS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     public final List<Slot> dynamicSlots = new ArrayList<>();
-    public ComponentItemHandler componentItemHandler;
+    public ItemStackHandler componentItemHandler;
 
 
     public ToolSettingContainer(int windowId, Inventory playerInventory, Player player, FriendlyByteBuf extraData) {
@@ -126,9 +126,9 @@ public class ToolSettingContainer extends BaseContainer {
         }
     }
 
-    public ComponentItemHandler getItemSlots(ItemStack itemStack) {
+    public ItemStackHandler getItemSlots(ItemStack itemStack) {
         IItemHandler itemHandler = itemStack.getCapability(Capabilities.ItemHandler.ITEM);
-        if (itemHandler instanceof ComponentItemHandler componentItemHandler)
+        if (itemHandler instanceof ItemStackHandler componentItemHandler)
             return componentItemHandler;
         return null;
     }

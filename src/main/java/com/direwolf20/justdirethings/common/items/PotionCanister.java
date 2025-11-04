@@ -2,8 +2,10 @@ package com.direwolf20.justdirethings.common.items;
 
 import com.direwolf20.justdirethings.common.containers.PotionCanisterContainer;
 import com.direwolf20.justdirethings.common.containers.handlers.PotionCanisterHandler;
-import com.direwolf20.justdirethings.common.items.datacomponents.JustDireDataComponents;
+import com.direwolf20.justdirethings.common.items.data.ItemDataHelper;
+import com.direwolf20.justdirethings.common.items.data.ItemDataKeys;
 import com.direwolf20.justdirethings.util.MagicHelpers;
+import com.direwolf20.justdirethings.setup.Registration;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
@@ -56,16 +58,26 @@ public class PotionCanister extends Item {
     }
 
     public static PotionContents getPotionContents(ItemStack itemStack) {
-        return itemStack.getOrDefault(JustDireDataComponents.POTION_CONTENTS, PotionContents.EMPTY);
+        ItemStack storedPotion = ItemDataHelper.getItemStack(itemStack, ItemDataKeys.POTION_CONTENTS);
+        if (storedPotion.isEmpty()) {
+            return PotionContents.EMPTY;
+        }
+        return storedPotion.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
     }
 
     public static void setPotionContents(ItemStack itemStack, PotionContents potionContents) {
-        itemStack.set(JustDireDataComponents.POTION_CONTENTS, potionContents);
+        if (potionContents.equals(PotionContents.EMPTY)) {
+            ItemDataHelper.setItemStack(itemStack, ItemDataKeys.POTION_CONTENTS, ItemStack.EMPTY);
+        } else {
+            ItemStack potionStack = new ItemStack(Items.POTION);
+            potionStack.set(DataComponents.POTION_CONTENTS, potionContents);
+            ItemDataHelper.setItemStack(itemStack, ItemDataKeys.POTION_CONTENTS, potionStack);
+        }
     }
 
     public static void attemptFill(ItemStack canister) {
         if (!(canister.getItem() instanceof PotionCanister)) return;
-        PotionCanisterHandler handler = new PotionCanisterHandler(canister, JustDireDataComponents.TOOL_CONTENTS.get(), 1);
+        PotionCanisterHandler handler = canister.getData(Registration.POTION_CANISTER_HANDLER.get());
         ItemStack potion = handler.getStackInSlot(0);
         if (potion.isEmpty() || !(potion.getItem() instanceof PotionItem)) return;
         PotionContents currentContents = getPotionContents(canister);
@@ -81,7 +93,7 @@ public class PotionCanister extends Item {
     }
 
     public static int getPotionAmount(ItemStack itemStack) {
-        return itemStack.getOrDefault(JustDireDataComponents.POTION_AMOUNT, 0);
+        return ItemDataHelper.getInt(itemStack, ItemDataKeys.POTION_AMOUNT, 0);
     }
 
     public static void addPotionAmount(ItemStack itemStack, int amt) {
@@ -89,7 +101,7 @@ public class PotionCanister extends Item {
     }
 
     public static void setPotionAmount(ItemStack itemStack, int amt) {
-        itemStack.set(JustDireDataComponents.POTION_AMOUNT, Math.max(0, Math.min(getMaxMB(), amt)));
+        ItemDataHelper.setInt(itemStack, ItemDataKeys.POTION_AMOUNT, Math.max(0, Math.min(getMaxMB(), amt)));
         if (getPotionAmount(itemStack) == 0)
             setPotionContents(itemStack, PotionContents.EMPTY);
     }

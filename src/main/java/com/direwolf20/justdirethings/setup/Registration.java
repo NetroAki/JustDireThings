@@ -19,6 +19,7 @@ import com.direwolf20.justdirethings.common.blocks.soil.GooSoilTier4;
 import com.direwolf20.justdirethings.common.capabilities.*;
 import com.direwolf20.justdirethings.common.containers.*;
 import com.direwolf20.justdirethings.common.containers.handlers.FilterBasicHandler;
+import com.direwolf20.justdirethings.common.containers.handlers.PotionCanisterHandler;
 import com.direwolf20.justdirethings.common.entities.*;
 import com.direwolf20.justdirethings.common.fluids.basefluids.RefinedFuel;
 import com.direwolf20.justdirethings.common.fluids.polymorphicfluid.PolymorphicFluid;
@@ -76,6 +77,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -743,10 +745,30 @@ public class Registration {
             () -> IMenuTypeExtension.create(ExperienceHolderContainer::new));
 
     //Data Attachments
-    public static final Supplier<AttachmentType<CompoundTag>> ITEM_DATA = ATTACHMENT_TYPES.register(
-            "item_data", () -> AttachmentType.builder(CompoundTag::new).serialize(CompoundTag.CODEC).build());
     public static final Supplier<AttachmentType<ItemStackHandler>> HANDLER = ATTACHMENT_TYPES.register(
             "handler", () -> AttachmentType.serializable(() -> new ItemStackHandler(1)).build());
+    public static final Supplier<AttachmentType<ItemStackHandler>> TOOL_HANDLER = ATTACHMENT_TYPES.register(
+            "tool_handler", () -> AttachmentType.serializable(holder -> {
+                if (holder instanceof ItemStack stack) {
+                    int slots = getToolSlotCount(stack);
+                    if (slots > 0) {
+                        return new ItemStackHandler(slots) {
+                            @Override
+                            public boolean isItemValid(int slot, ItemStack stackIn) {
+                                return stackIn.getItem() instanceof PotionCanister;
+                            }
+                        };
+                    }
+                }
+                return new ItemStackHandler(0);
+            }).build());
+    public static final Supplier<AttachmentType<PotionCanisterHandler>> POTION_CANISTER_HANDLER = ATTACHMENT_TYPES.register(
+            "potion_canister_handler", () -> AttachmentType.serializable(holder -> {
+                if (holder instanceof ItemStack stack) {
+                    return new PotionCanisterHandler(stack, 1);
+                }
+                throw new IllegalStateException("Potion canister handler can only be attached to item stacks");
+            }).build());
     public static final Supplier<AttachmentType<ItemStackHandler>> MACHINE_HANDLER = ATTACHMENT_TYPES.register(
             "machine_handler", () -> AttachmentType.serializable(holder -> {
                 if (holder instanceof BaseMachineBE baseMachineBE)
@@ -779,6 +801,23 @@ public class Registration {
                     return new FilterBasicHandler(baseMachineBE.ANYSIZE_FILTER_SLOTS);
                 return new FilterBasicHandler(0);
             }).build());
+
+
+    private static int getToolSlotCount(ItemStack stack) {
+        if (stack.is(FerricoreBow.get())) {
+            return 1;
+        }
+        if (stack.is(BlazegoldBow.get())) {
+            return 2;
+        }
+        if (stack.is(CelestigemBow.get())) {
+            return 3;
+        }
+        if (stack.is(EclipseAlloyBow.get())) {
+            return 4;
+        }
+        return 0;
+    }
 
 
     public static final Supplier<AttachmentType<MachineEnergyStorage>> ENERGYSTORAGE_MACHINES = ATTACHMENT_TYPES.register(

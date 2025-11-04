@@ -24,7 +24,7 @@ public class PocketGeneratorContainer extends BaseContainer {
     public PocketGeneratorContainer(int windowId, Inventory playerInventory, Player player, ItemStack pocketGenerator) {
         super(Registration.PocketGenerator_Container.get(), windowId);
         playerEntity = player;
-        handler = pocketGenerator.getData(Registration.HANDLER.get());
+        handler = pocketGenerator.getData(Registration.HANDLER);
         this.pocketGeneratorItemStack = pocketGenerator;
         if (handler != null)
             addGeneratorSlots(handler, 0, 80, 35, 1, 18);

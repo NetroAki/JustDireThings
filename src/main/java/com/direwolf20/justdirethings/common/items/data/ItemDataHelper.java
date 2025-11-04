@@ -1,12 +1,12 @@
 package com.direwolf20.justdirethings.common.items.data;
 
-import com.direwolf20.justdirethings.setup.Registration;
 import com.mojang.logging.LogUtils;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
@@ -15,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.nbt.NbtOps;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
@@ -24,10 +25,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Small utility for reading/writing attachment-backed item data using plain NBT.
+ * Small utility for reading/writing per-item data using a dedicated NBT sub-tag on the stack.
  * <p>
- * Every stack receives an attachment (registered in {@link Registration}) that holds a {@link CompoundTag}
- * dedicated to JustDireThings. All helper methods work inside that root tag so callers only have to supply keys.
+ * All helper methods work inside the {@code "justdirethings"} compound so callers only have to supply keys.
  */
 public final class ItemDataHelper {
     private static final Logger LOGGER = LogUtils.getLogger();
@@ -36,24 +36,23 @@ public final class ItemDataHelper {
     private ItemDataHelper() {
     }
 
-    private static CompoundTag getAttachment(ItemStack stack) {
-        return stack.getData(Registration.ITEM_DATA.get());
-    }
-
     private static CompoundTag getOrCreateRoot(ItemStack stack) {
-        CompoundTag attachment = getAttachment(stack);
-        if (!attachment.contains(ROOT_TAG, Tag.TAG_COMPOUND)) {
-            attachment.put(ROOT_TAG, new CompoundTag());
+        CompoundTag root = stack.getOrCreateTag();
+        if (!root.contains(ROOT_TAG, Tag.TAG_COMPOUND)) {
+            root.put(ROOT_TAG, new CompoundTag());
         }
-        return attachment.getCompound(ROOT_TAG);
+        return root.getCompound(ROOT_TAG);
     }
 
     private static Optional<CompoundTag> getRootOptional(ItemStack stack) {
-        CompoundTag attachment = getAttachment(stack);
-        if (attachment.contains(ROOT_TAG, Tag.TAG_COMPOUND)) {
-            return Optional.of(attachment.getCompound(ROOT_TAG));
+        CompoundTag tag = stack.getTag();
+        if (tag == null) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        if (!tag.contains(ROOT_TAG, Tag.TAG_COMPOUND)) {
+            return Optional.empty();
+        }
+        return Optional.of(tag.getCompound(ROOT_TAG));
     }
 
     /* Basic scalar helpers */
@@ -71,7 +70,7 @@ public final class ItemDataHelper {
     }
 
     public static double getDouble(ItemStack stack, String key, double fallback) {
-        return getRootOptional(stack).map(root -> root.contains(key, DoubleTag.TAG_DOUBLE) ? root.getDouble(key) : fallback).orElse(fallback);
+        return getRootOptional(stack).map(root -> root.contains(key, Tag.TAG_DOUBLE) ? root.getDouble(key) : fallback).orElse(fallback);
     }
 
     public static void setBoolean(ItemStack stack, String key, boolean value) {
@@ -95,6 +94,21 @@ public final class ItemDataHelper {
 
     public static String getString(ItemStack stack, String key, String fallback) {
         return getRootOptional(stack).map(root -> root.contains(key, Tag.TAG_STRING) ? root.getString(key) : fallback).orElse(fallback);
+    }
+
+    public static void setItemStack(ItemStack stack, String key, ItemStack value) {
+        if (value.isEmpty()) {
+            getOrCreateRoot(stack).remove(key);
+        } else {
+            getOrCreateRoot(stack).put(key, value.save(new CompoundTag()));
+        }
+    }
+
+    public static ItemStack getItemStack(ItemStack stack, String key) {
+        return getRootOptional(stack)
+                .filter(root -> root.contains(key, Tag.TAG_COMPOUND))
+                .map(root -> ItemStack.of(root.getCompound(key)))
+                .orElse(ItemStack.EMPTY);
     }
 
     public static void setUuid(ItemStack stack, String key, UUID uuid) {
@@ -226,5 +240,29 @@ public final class ItemDataHelper {
 
     public static boolean has(ItemStack stack, String key) {
         return getRootOptional(stack).map(root -> root.contains(key)).orElse(false);
+    }
+
+    public static <T> void setWithCodec(ItemStack stack, String key, Codec<T> codec, T value) {
+        DataResult<Tag> result = codec.encodeStart(NbtOps.INSTANCE, value);
+        result.resultOrPartial(msg -> LOGGER.warn("Failed to encode '{}' for stack {}: {}", key, stack, msg))
+                .ifPresent(tag -> getOrCreateRoot(stack).put(key, tag));
+    }
+
+    public static <T> T getWithCodec(ItemStack stack, String key, Codec<T> codec, T fallback) {
+        Optional<CompoundTag> rootOptional = getRootOptional(stack);
+        if (rootOptional.isEmpty()) {
+            return fallback;
+        }
+        CompoundTag root = rootOptional.get();
+        if (!root.contains(key)) {
+            return fallback;
+        }
+        Tag tag = root.get(key);
+        if (tag == null) {
+            return fallback;
+        }
+        return codec.parse(NbtOps.INSTANCE, tag)
+                .resultOrPartial(msg -> LOGGER.warn("Failed to decode '{}' for stack {}: {}", key, stack, msg))
+                .orElse(fallback);
     }
 }
